@@ -9,7 +9,7 @@ from contextlib import asynccontextmanager
 
 from app.config import get_settings
 from app.services.firebase_service import init_firebase
-from app.routers import auth, admin
+from app.routers import auth, admin, sheets
 
 
 @asynccontextmanager
@@ -39,6 +39,7 @@ app.add_middleware(
 # Register routers
 app.include_router(auth.router)
 app.include_router(admin.router)
+app.include_router(sheets.router)
 
 
 @app.get("/")

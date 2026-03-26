@@ -13,6 +13,8 @@ import Register from './pages/Register';
 import GoogleSetup from './pages/GoogleSetup';
 import PendingApproval from './pages/PendingApproval';
 import Dashboard from './pages/Dashboard';
+import SheetSetup from './pages/SheetSetup';
+import StudentList from './pages/StudentList';
 
 /**
  * ProtectedRoute — status gate per PRD §7.1
@@ -146,6 +148,24 @@ export default function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Phase 2 — Sheet Management */}
+        <Route
+          path="/sheets/new"
+          element={
+            <ProtectedRoute>
+              <SheetSetup />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/sheets/:sheetId/students"
+          element={
+            <ProtectedRoute>
+              <StudentList />
             </ProtectedRoute>
           }
         />

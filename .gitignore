@@ -1,3 +1,6 @@
 SRD(attendX).md
 PRD(attendX).md
-walkthrough(phase1).md
+walkthrough(phase1)
+walkthrough-p2
+attendx-backend/.env.example
+attendx-frontend/.env.example
