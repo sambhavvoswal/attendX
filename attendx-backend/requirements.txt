@@ -1,0 +1,15 @@
+fastapi>=0.111
+uvicorn[standard]
+gspread>=6
+google-auth>=2
+google-auth-oauthlib>=1
+firebase-admin>=6
+pydantic-settings>=2
+httpx
+python-multipart
+openpyxl
+resend
+slowapi
+python-dotenv
+pytest
+pytest-asyncio

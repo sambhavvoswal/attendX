@@ -1,0 +1,74 @@
+# AttendX — Phase 1 Walkthrough
+
+## What Was Built
+
+Phase 1 scaffold — a complete **backend + frontend foundation** with auth flow ready for end-to-end testing once Firebase is configured.
+
+---
+
+## Decisions Made
+
+| Decision | Choice | Why |
+|----------|--------|-----|
+| Design palette | Slate + coral, dark mode default | Per user preference + PRD §4 |
+| Tailwind version | **v4** (CSS-first @theme config) | User requested latest |
+| Email service | **Resend** | Modern API, generous free tier, simple Python SDK |
+| Monorepo | `attendx-backend/` + `attendx-frontend/` inside `attendX/` | Per user preference |
+
+---
+
+## Backend Files Created
+
+| File | Purpose |
+|------|---------|
+| [main.py](file:///d:/learn2code/Projects/attendX/attendx-backend/app/main.py) | FastAPI entry, CORS, router registration |
+| [config.py](file:///d:/learn2code/Projects/attendX/attendx-backend/app/config.py) | pydantic-settings env var models |
+| [dependencies.py](file:///d:/learn2code/Projects/attendX/attendx-backend/app/dependencies.py) | Auth middleware (token verify + status gate) |
+| [firebase_service.py](file:///d:/learn2code/Projects/attendX/attendx-backend/app/services/firebase_service.py) | Firestore CRUD (users + orgs) |
+| [email_service.py](file:///d:/learn2code/Projects/attendX/attendx-backend/app/services/email_service.py) | Resend emails (approval/rejection) |
+| [auth.py](file:///d:/learn2code/Projects/attendX/attendx-backend/app/routers/auth.py) | 4 endpoints: register, google-setup, me, update |
+| [admin.py](file:///d:/learn2code/Projects/attendX/attendx-backend/app/routers/admin.py) | 12 endpoints: org CRUD + user approval/management |
+| [user.py](file:///d:/learn2code/Projects/attendX/attendx-backend/app/schemas/user.py) | Pydantic schemas for user endpoints |
+| [org.py](file:///d:/learn2code/Projects/attendX/attendx-backend/app/schemas/org.py) | Pydantic schemas for org endpoints |
+| [Dockerfile](file:///d:/learn2code/Projects/attendX/attendx-backend/Dockerfile) | HF Spaces deployment container |
+| [requirements.txt](file:///d:/learn2code/Projects/attendX/attendx-backend/requirements.txt) | Python dependencies |
+
+---
+
+## Frontend Files Created
+
+| File | Purpose |
+|------|---------|
+| [index.css](file:///d:/learn2code/Projects/attendX/attendx-frontend/src/index.css) | Tailwind v4 @theme design system (slate+coral) |
+| [firebase.js](file:///d:/learn2code/Projects/attendX/attendx-frontend/src/services/firebase.js) | Firebase init + auth helpers |
+| [api.js](file:///d:/learn2code/Projects/attendX/attendx-frontend/src/services/api.js) | Axios instance with token interceptor |
+| [authStore.js](file:///d:/learn2code/Projects/attendX/attendx-frontend/src/store/authStore.js) | Zustand auth state |
+| [useAuth.js](file:///d:/learn2code/Projects/attendX/attendx-frontend/src/hooks/useAuth.js) | Auth state management hook |
+| [App.jsx](file:///d:/learn2code/Projects/attendX/attendx-frontend/src/App.jsx) | Routing + ProtectedRoute (status gate) |
+| [Login.jsx](file:///d:/learn2code/Projects/attendX/attendx-frontend/src/pages/Login.jsx) | Email + Google Sign-In |
+| [Register.jsx](file:///d:/learn2code/Projects/attendX/attendx-frontend/src/pages/Register.jsx) | Account creation form |
+| [GoogleSetup.jsx](file:///d:/learn2code/Projects/attendX/attendx-frontend/src/pages/GoogleSetup.jsx) | One-time org name for Google users |
+| [PendingApproval.jsx](file:///d:/learn2code/Projects/attendX/attendx-frontend/src/pages/PendingApproval.jsx) | Waiting screen |
+| [Dashboard.jsx](file:///d:/learn2code/Projects/attendX/attendx-frontend/src/pages/Dashboard.jsx) | Placeholder (sheets coming Phase 2) |
+| [Button.jsx](file:///d:/learn2code/Projects/attendX/attendx-frontend/src/components/ui/Button.jsx) | Reusable button (5 variants) |
+| [Input.jsx](file:///d:/learn2code/Projects/attendX/attendx-frontend/src/components/ui/Input.jsx) | Styled form input |
+| [TopBar.jsx](file:///d:/learn2code/Projects/attendX/attendx-frontend/src/components/layout/TopBar.jsx) | Glass nav with logo + logout |
+| [BottomNav.jsx](file:///d:/learn2code/Projects/attendX/attendx-frontend/src/components/layout/BottomNav.jsx) | Mobile tab bar |
+| [PageShell.jsx](file:///d:/learn2code/Projects/attendX/attendx-frontend/src/components/layout/PageShell.jsx) | Layout wrapper |
+
+---
+
+## Verification
+
+| Check | Result |
+|-------|--------|
+| `npm run build` | ✅ Built in 397ms, no errors |
+| Vite config | ✅ React + Tailwind v4 plugin loaded |
+| All imports resolve | ✅ No missing modules |
+
+---
+
+## Next Steps
+
+1. **User action:** Follow the [Firebase Setup Guide](file:///C:/Users/sambh/.gemini/antigravity/brain/b18c37bf-6e2c-4488-b542-305eeddfdb2d/firebase_setup_guide.md) to create the Firebase project and fill in `.env` files
+2. **Phase 2:** Orgs + Sheet Management (Google Sheets OAuth, sheet CRUD, student list)
