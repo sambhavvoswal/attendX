@@ -9,6 +9,7 @@ export function useAttendance(sheetId) {
   const {
     sessionId,
     date,
+    mode,
     scannedIds,
     markedValues,
     addScannedId,
@@ -19,15 +20,15 @@ export function useAttendance(sheetId) {
     clearUnsavedChanges
   } = useSessionStore();
 
-  const handleStartSession = useCallback(async (selectedDate) => {
+  const handleStartSession = useCallback(async (selectedDate, selectedMode) => {
     setIsProcessing(true);
     try {
       const session = await attendanceService.startSession(sheetId, selectedDate);
-      initSession(session.session_id, sheetId, selectedDate);
+      initSession(session.session_id, sheetId, selectedDate, selectedMode);
       toast.success('Attendance session started');
       return session;
     } catch (err) {
-      toast.error(err.message || 'Failed to start session');
+      toast.error(err.response?.data?.detail || err.message || 'Failed to start session');
       throw err;
     } finally {
       setIsProcessing(false);
@@ -92,7 +93,6 @@ export function useAttendance(sheetId) {
 
       await attendanceService.endSession(payload);
       clearUnsavedChanges();
-      clearSession();
       toast.success('Session ended and saved');
     } catch (err) {
       toast.error('Failed to close session');
@@ -118,6 +118,7 @@ export function useAttendance(sheetId) {
   return {
     sessionId,
     date,
+    mode,
     scannedIds,
     markedValues,
     isProcessing,
@@ -126,6 +127,7 @@ export function useAttendance(sheetId) {
     validateAndMark,
     markManually,
     handleEndSession,
-    addNewStudent
+    addNewStudent,
+    clearSession
   };
 }

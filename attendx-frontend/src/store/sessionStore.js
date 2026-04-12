@@ -7,14 +7,16 @@ const useSessionStore = create(
       sessionId: null,
       sheetId: null,
       date: null,
-      scannedIds: [],        // Raw array of PK values from camera scans
-      markedValues: {},      // { pk_value: "A", pk_value2: "L" }
+      mode: null,              // 'qr' | 'manual'
+      scannedIds: [],          // Raw array of PK values from camera scans
+      markedValues: {},        // { pk_value: "A", pk_value2: "L" }
       hasUnsavedChanges: false,
       
-      initSession: (sessionId, sheetId, date) => set({
+      initSession: (sessionId, sheetId, date, mode) => set({
         sessionId,
         sheetId,
         date,
+        mode,
         scannedIds: [],
         markedValues: {},
         hasUnsavedChanges: false
@@ -43,6 +45,7 @@ const useSessionStore = create(
         sessionId: null,
         sheetId: null,
         date: null,
+        mode: null,
         scannedIds: [],
         markedValues: {},
         hasUnsavedChanges: false
