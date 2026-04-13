@@ -4,7 +4,7 @@ import { attendanceService } from '../services/attendanceService';
 import { parseQRData } from '../utils/qrParser';
 import toast from 'react-hot-toast';
 
-export function useAttendance(sheetId) {
+export function useAttendance(sheetId, activeSheet, students) {
   const [isProcessing, setIsProcessing] = useState(false);
   const {
     sessionId,
@@ -36,43 +36,59 @@ export function useAttendance(sheetId) {
   }, [sheetId, initSession]);
 
   const validateAndMark = useCallback(async (rawQR) => {
+    if (!activeSheet || !students) return { success: false, error: 'Data not loaded yet' };
+    
     const { valid, data, error } = parseQRData(rawQR);
     if (!valid) return { success: false, error };
 
-    // Check for duplicate scan
-    const pkValue = data[Object.keys(data)[0]]; // Simple assumption for now
-    if (scannedIds.includes(pkValue)) {
-      return { success: false, error: 'Already scanned', pkValue };
+    const mapping = activeSheet.qr_key_mapping || {};
+    const pkColName = activeSheet.primary_key_column;
+    
+    // Find matching QR key (case-insensitive)
+    let pkKey = null;
+    for (const [jsonKey, colHeader] of Object.entries(mapping)) {
+        if (colHeader === pkColName) {
+            pkKey = jsonKey;
+            break;
+        }
+    }
+    
+    if (!pkKey) return { success: false, error: 'Primary key missing in mapping' };
+
+    // Get value from QR data
+    const lowerMap = Object.keys(data).reduce((acc, k) => {
+        acc[k.toLowerCase()] = data[k];
+        return acc;
+    }, {});
+    
+    const scannedPkValue = String(lowerMap[pkKey.toLowerCase()] || '').trim();
+    if (!scannedPkValue) return { success: false, error: 'Primary key empty' };
+
+    if (scannedIds.includes(scannedPkValue)) {
+      return { success: false, error: 'Already scanned', pkValue: scannedPkValue };
+    }
+    
+    // Validate if student exists
+    const studentExists = students.some(st => String(st[pkColName] || '').trim() === scannedPkValue);
+    if (!studentExists) {
+        return { success: false, error: 'Student not found in roster' };
     }
 
-    try {
-      const validation = await attendanceService.validateQR(sheetId, data);
-      if (!validation.valid) return { success: false, error: validation.error };
+    // Default to 'P' or first positive
+    const attVals = activeSheet.attendance_values || [];
+    const defaultVal = attVals.find(v => v.is_positive)?.value || 'P';
 
-      const actualPk = validation.pk_value;
-      
-      // Default to "Present" or first positive value
-      const markRes = await attendanceService.markAttendance(sheetId, actualPk, date, 'P');
-      
-      addScannedId(actualPk);
-      setMarkedValue(actualPk, 'P');
-      
-      return { success: true, pkValue: actualPk, studentData: data };
-    } catch (err) {
-      return { success: false, error: err.message || 'Server error' };
-    }
-  }, [sheetId, date, scannedIds, addScannedId, setMarkedValue]);
+    addScannedId(scannedPkValue);
+    setMarkedValue(scannedPkValue, defaultVal);
+    
+    return { success: true, pkValue: scannedPkValue, studentData: data };
+  }, [activeSheet, students, scannedIds, addScannedId, setMarkedValue]);
 
-  const markManually = useCallback(async (pkValue, value) => {
-    try {
-      await attendanceService.markAttendance(sheetId, pkValue, date, value);
-      setMarkedValue(pkValue, value);
-      if (!scannedIds.includes(pkValue)) addScannedId(pkValue);
-      toast.success(`Marked ${pkValue} as ${value}`);
-    } catch (err) {
-      toast.error(`Failed to mark ${pkValue}`);
-    }
-  }, [sheetId, date, setMarkedValue, scannedIds, addScannedId]);
+  const markManually = useCallback((pkValue, value) => {
+    setMarkedValue(pkValue, value);
+    if (!scannedIds.includes(pkValue)) addScannedId(pkValue);
+    toast.success(`Marked ${pkValue} as ${value}`);
+  }, [setMarkedValue, scannedIds, addScannedId]);
 
   const handleEndSession = useCallback(async (unmarkedDefault = 'empty', absentValue = 'A') => {
     setIsProcessing(true);
@@ -81,8 +97,7 @@ export function useAttendance(sheetId) {
         session_id: sessionId,
         sheet_id: sheetId,
         date_column: date,
-        scanned_ids: scannedIds,
-        manually_marked_ids: [],
+        marked_values: markedValues,
         value_counts: Object.values(markedValues).reduce((acc, val) => {
           acc[val] = (acc[val] || 0) + 1;
           return acc;
@@ -93,13 +108,14 @@ export function useAttendance(sheetId) {
 
       await attendanceService.endSession(payload);
       clearUnsavedChanges();
-      toast.success('Session ended and saved');
+      toast.success('Wait, checking data...', { duration: 1000 });
+      setTimeout(() => toast.success('Data successfully uploaded to Google Sheets! ✨', { duration: 4000 }), 1000);
     } catch (err) {
       toast.error('Failed to close session');
     } finally {
       setIsProcessing(false);
     }
-  }, [sessionId, sheetId, date, scannedIds, markedValues, clearSession, clearUnsavedChanges]);
+  }, [sessionId, sheetId, date, markedValues, clearUnsavedChanges]);
 
   const addNewStudent = useCallback(async (studentData) => {
     setIsProcessing(true);

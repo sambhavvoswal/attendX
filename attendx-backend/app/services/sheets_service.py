@@ -93,8 +93,8 @@ class SheetsService:
         ws.update_cell(row_idx, date_col_idx, att_value)
         return row_idx
 
-    def batch_mark_attendance(self, sheet_id: str, client: gspread.Client, pk_col: str, pk_values: list[str], date_col: str, att_value: str):
-        if not pk_values:
+    def batch_mark_attendance(self, sheet_id: str, client: gspread.Client, pk_col: str, marked_values: dict, date_col: str):
+        if not marked_values:
             return
             
         ws = client.open_by_key(sheet_id).sheet1
@@ -115,7 +115,7 @@ class SheetsService:
         
         # Build batch updates
         updates = []
-        for pk in pk_values:
+        for pk, att_value in marked_values.items():
             try:
                 row_idx = all_pk.index(pk) + 1
                 updates.append({

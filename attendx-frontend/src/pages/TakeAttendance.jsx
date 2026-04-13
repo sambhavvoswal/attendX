@@ -18,6 +18,8 @@ export default function TakeAttendance() {
   const { sheets } = useSheetStore();
   const activeSheet = sheets.find(s => s.sheet_id === sheetId);
 
+  const { students, columns, fetchData, loading: studentsLoading } = useStudents(sheetId);
+
   const {
     sessionId,
     date,
@@ -32,9 +34,7 @@ export default function TakeAttendance() {
     handleEndSession,
     addNewStudent,
     clearSession
-  } = useAttendance(sheetId);
-
-  const { students, columns, fetchData, loading: studentsLoading } = useStudents(sheetId);
+  } = useAttendance(sheetId, activeSheet, students);
 
   // Local state
   const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));

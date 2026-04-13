@@ -5,6 +5,12 @@ import { SCAN_DEBOUNCE_MS } from '../constants';
 export function useQRScanner({ videoRef, onScan, active = true }) {
   const scannerRef = useRef(null);
   const lastScannedRef = useRef({});  // { [raw_string]: timestamp }
+  const onScanRef = useRef(onScan);
+
+  // Keep ref updated to latest closure to avoid dependency changes
+  useEffect(() => {
+    onScanRef.current = onScan;
+  }, [onScan]);
 
   const handleResult = useCallback((rawData) => {
     // Debounce: ignore same value within SCAN_DEBOUNCE_MS window
@@ -14,8 +20,10 @@ export function useQRScanner({ videoRef, onScan, active = true }) {
       return;
     }
     lastScannedRef.current[rawData] = now;
-    onScan(rawData);
-  }, [onScan]);
+    if (onScanRef.current) {
+        onScanRef.current(rawData);
+    }
+  }, []);
 
   useEffect(() => {
     if (!videoRef.current) return;
