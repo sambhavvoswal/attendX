@@ -35,13 +35,13 @@ RULE #10: Never modify firebase.js, api.js, dependencies.py without explicit ins
 > **Update this section at the end of every session.**
 
 ```
-Last updated: 2026-04-01
+Last updated: 2026-04-14
 Last session by: Antigravity
-Active phase: Phase 3
-Active task: P3-01 — Start Attendance feature
+Active phase: Phase 4
+Active task: P4-01 — GET /api/qr/{id}/data
 
-Completed tasks: 21 / 65
-Overall progress: 32%
+Completed tasks: 33 / 65
+Overall progress: 50%
 ```
 
 ---
@@ -76,18 +76,18 @@ Update status after each task completes. Statuses: `✅ Done` | `⏳ In Progress
 | P2-08 | Dashboard.jsx + SheetCard.jsx | ✅ Done | Integrated Framer Motion animations |
 | P2-09 | StudentList.jsx + StudentCard.jsx | ✅ Done | View class roster and filter |
 | P2-10 | SheetSettings.jsx + DragList.jsx | ✅ Done | React drag-and-drop attendance settings |
-| P3-01 | POST /api/attendance/validate-qr | ❌ | |
-| P3-02 | POST /api/attendance/mark | ❌ | |
-| P3-03 | POST /api/attendance/session/start + end | ❌ | |
-| P3-04 | src/utils/qrParser.js | ❌ | |
-| P3-05 | src/hooks/useQRScanner.js | ❌ | |
-| P3-06 | QRScanner.jsx + ScannerOverlay.jsx | ❌ | |
-| P3-07 | TakeAttendance.jsx (full layout) | ❌ | |
-| P3-08 | ScannedCard.jsx (Framer Motion) | ❌ | |
-| P3-09 | sessionStorage session persistence | ❌ | |
-| P3-10 | ManualEntryPanel.jsx + groupBy.js | ❌ | |
-| P3-11 | StudentRow.jsx + AttendanceValueButtons.jsx | ❌ | |
-| P3-12 | NewStudentModal.jsx | ❌ | |
+| P3-01 | POST /api/attendance/validate-qr | ✅ Done | Removed: Moved to 100% local frontend validation |
+| P3-02 | POST /api/attendance/mark | ✅ Done | Removed: Merged into bulk session/end save |
+| P3-03 | POST /api/attendance/session/start + end | ✅ Done | Implemented in `app/routers/attendance.py` with batch update |
+| P3-04 | src/utils/qrParser.js | ✅ Done | Supports JSON, plain strings, arbitrary formats |
+| P3-05 | src/hooks/useQRScanner.js | ✅ Done | Implemented with debouncing and camera persistence |
+| P3-06 | QRScanner.jsx + ScannerOverlay.jsx | ✅ Done | Implemented |
+| P3-07 | TakeAttendance.jsx (full layout) | ✅ Done | Dual modes + navigation safety + mobile bottom-sheet |
+| P3-08 | ScannedCard.jsx (Framer Motion) | ✅ Done | Displayed in line within QRAttendanceView |
+| P3-09 | sessionStorage session persistence | ✅ Done | Mode and items persist via Zustand persist middleware |
+| P3-10 | ManualEntryPanel.jsx + groupBy.js | ✅ Done | Implemented as ManualAttendanceView with accordions |
+| P3-11 | StudentRow.jsx + AttendanceValueButtons.jsx | ✅ Done | Embedded in the new interfaces |
+| P3-12 | NewStudentModal.jsx | ✅ Done | Implemented and integrated |
 | P4-01 | GET /api/qr/{id}/data | ❌ | |
 | P4-02 | POST /api/qr/parse-excel | ❌ | |
 | P4-03 | excelParser.js (SheetJS) | ❌ | |
@@ -128,24 +128,24 @@ Update status after each task completes. Statuses: `✅ Done` | `⏳ In Progress
 | `src/services/firebase.js` | ❌ | Firebase init + Google provider. DO NOT MODIFY without instruction. |
 | `src/services/api.js` | ❌ | Axios + token interceptor + 401 retry. DO NOT MODIFY without instruction. |
 | `src/services/sheetsService.js` | ❌ | All /api/sheets/* calls |
-| `src/services/attendanceService.js` | ❌ | All /api/attendance/* calls |
+| `src/services/attendanceService.js` | ✅ Done | All /api/attendance/* calls |
 | `src/services/adminService.js` | ❌ | All /api/admin/* calls |
 | `src/services/qrService.js` | ❌ | /api/qr/* + client-side QR gen wrapper |
 | `src/store/authStore.js` | ❌ | Zustand: user, role, org_id, status |
 | `src/store/sheetStore.js` | ❌ | Zustand: sheets, activeSheet, students |
-| `src/store/sessionStore.js` | ❌ | Zustand: scannedIds, sessionDate, markedValues |
-| `src/utils/qrParser.js` | ❌ | JSON parse + validate (PRD §6.2). DO NOT MODIFY without instruction. |
+| `src/store/sessionStore.js` | ✅ Done | Zustand: scannedIds, sessionDate, markedValues |
+| `src/utils/qrParser.js` | ✅ Done | JSON parse + validate (PRD §6.2). DO NOT MODIFY without instruction. |
 | `src/utils/colorCode.js` | ❌ | % → Tailwind color class |
 | `src/utils/excelParser.js` | ❌ | SheetJS .xlsx/.csv parser |
 | `src/utils/dateUtils.js` | ❌ | ISO date helpers + column detection |
-| `src/utils/groupBy.js` | ❌ | Group students by column + detect groupable cols |
+| `src/utils/groupBy.js` | ✅ Done | Group students by column + detect groupable cols |
 | `src/utils/attendanceCalc.js` | ❌ | Calculate % per student |
 | `src/constants/index.js` | ❌ | All app-wide constants. DO NOT MODIFY without instruction. |
 | `src/hooks/useAuth.js` | ❌ | Firebase auth state + Firestore status polling |
 | `src/hooks/useSheet.js` | ❌ | Sheet CRUD |
 | `src/hooks/useStudents.js` | ❌ | Fetch + filter + group students |
-| `src/hooks/useAttendance.js` | ❌ | Session state, mark, validate |
-| `src/hooks/useQRScanner.js` | ❌ | qr-scanner lifecycle |
+| `src/hooks/useAttendance.js` | ✅ Done | Session state, mark, validate |
+| `src/hooks/useQRScanner.js` | ✅ Done | qr-scanner lifecycle |
 | `src/hooks/useQRGenerator.js` | ❌ | qr-code-styling + logo compositing |
 | `src/hooks/useAnimation.js` | ❌ | GSAP page entrance helpers |
 | `src/hooks/useBreakpoint.js` | ❌ | Returns current breakpoint |
@@ -174,14 +174,14 @@ Update status after each task completes. Statuses: `✅ Done` | `⏳ In Progress
 | `src/components/sheets/StepMapQR.jsx` | ❌ | Step 4 |
 | `src/components/sheets/StepAttendanceValues.jsx` | ❌ | Step 5 |
 | `src/components/sheets/StepConfirm.jsx` | ❌ | Step 6 |
-| `src/components/attendance/QRScanner.jsx` | ❌ | Camera + qr-scanner |
-| `src/components/attendance/ScannerOverlay.jsx` | ❌ | Toast over scanner |
-| `src/components/attendance/ScannedCard.jsx` | ❌ | Scanned student card |
-| `src/components/attendance/ManualEntryPanel.jsx` | ❌ | Bottom sheet manual entry |
-| `src/components/attendance/StudentRow.jsx` | ❌ | Row in manual entry |
-| `src/components/attendance/GroupHeader.jsx` | ❌ | Collapsible group header |
-| `src/components/attendance/AttendanceValueButtons.jsx` | ❌ | Value buttons per config |
-| `src/components/attendance/NewStudentModal.jsx` | ❌ | Add student mid-session |
+| `src/components/attendance/QRScanner.jsx` | ✅ Done | Camera + qr-scanner |
+| `src/components/attendance/ScannerOverlay.jsx` | ✅ Done | Toast over scanner |
+| `src/components/attendance/ScannedCard.jsx` | ✅ Done | Scanned student card |
+| `src/components/attendance/ManualEntryPanel.jsx` | ✅ Done | Bottom sheet manual entry |
+| `src/components/attendance/StudentRow.jsx` | ✅ Done | Row in manual entry |
+| `src/components/attendance/GroupHeader.jsx` | ✅ Done | Collapsible group header |
+| `src/components/attendance/AttendanceValueButtons.jsx` | ✅ Done | Value buttons per config |
+| `src/components/attendance/NewStudentModal.jsx` | ✅ Done | Add student mid-session |
 | `src/components/students/StudentCard.jsx` | ❌ | Student list card |
 | `src/components/students/StudentSearch.jsx` | ❌ | Search input |
 | `src/components/qr/QRCard.jsx` | ❌ | Single QR preview |
@@ -201,7 +201,7 @@ Update status after each task completes. Statuses: `✅ Done` | `⏳ In Progress
 | `src/pages/Dashboard.jsx` | ❌ | Main dashboard |
 | `src/pages/SheetSetup.jsx` | ❌ | New sheet wizard page |
 | `src/pages/StudentList.jsx` | ❌ | All students for a sheet |
-| `src/pages/TakeAttendance.jsx` | ❌ | Attendance session page |
+| `src/pages/TakeAttendance.jsx` | ✅ Done | Attendance session page |
 | `src/pages/SheetSettings.jsx` | ❌ | Sheet config page |
 | `src/pages/Analytics.jsx` | ❌ | Analytics charts page |
 | `src/pages/QRGeneratorPage.jsx` | ❌ | QR generation page |
@@ -225,7 +225,7 @@ Update status after each task completes. Statuses: `✅ Done` | `⏳ In Progress
 | `app/dependencies.py` | ❌ | Auth middleware. DO NOT MODIFY without instruction. |
 | `app/routers/auth.py` | ❌ | /api/auth/* |
 | `app/routers/sheets.py` | ❌ | /api/sheets/* |
-| `app/routers/attendance.py` | ❌ | /api/attendance/* |
+| `app/routers/attendance.py` | ✅ Done | /api/attendance/* |
 | `app/routers/admin.py` | ✅ Done | /api/admin/* |
 | `app/routers/qr.py` | ❌ | /api/qr/* |
 | `app/services/firebase_service.py` | ✅ Done | Firestore CRUD |
@@ -235,9 +235,9 @@ Update status after each task completes. Statuses: `✅ Done` | `⏳ In Progress
 | `app/schemas/user.py` | ✅ Done | Pydantic user models |
 | `app/schemas/org.py` | ✅ Done | Pydantic org models |
 | `app/schemas/sheet.py` | ✅ Done | Pydantic sheet + attendance value models |
-| `app/schemas/attendance.py` | ❌ | Pydantic attendance models |
+| `app/schemas/attendance.py` | ✅ Done | Pydantic attendance models |
 | `app/schemas/qr.py` | ❌ | Pydantic QR models |
-| `app/utils/qr_validator.py` | ❌ | QR payload validation |
+| `app/utils/qr_validator.py` | ✅ Done | QR payload validation |
 | `app/utils/sheet_helpers.py` | ✅ Done | is_date_column, extract_sheet_id |
 | `requirements.txt` | ❌ | Python dependencies (locked versions from SRD §10.2) |
 | `Dockerfile` | ❌ | HF Spaces deployment |
