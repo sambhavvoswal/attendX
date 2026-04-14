@@ -34,3 +34,4 @@ app.include_router(admin_router)
 app.include_router(sheets_router)
 app.include_router(attendance_router, prefix="/api/attendance", tags=["attendance"])
 
+#comment so that CI(actions) could be tested
