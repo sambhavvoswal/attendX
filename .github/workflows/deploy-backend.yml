@@ -21,5 +21,8 @@ jobs:
           git config --global user.email "bot@attendx.com"
           git config --global user.name "AttendX Bot"
           
-          # This command extracts the attendx-backend folder and pushes it to the HF remote
-          git subtree push --prefix attendx-backend https://sambhavvoswal:$HF_TOKEN@huggingface.co/spaces/sambhavvoswal/attendx-backend main
+          # Create a temporary local branch of the folder
+          git subtree split --prefix attendx-backend -b deploy-branch
+          
+          # Force push to Hugging Face
+          git push https://sambhavvoswal:$HF_TOKEN@huggingface.co/spaces/sambhavvoswal/attendx-backend deploy-branch:main --force
