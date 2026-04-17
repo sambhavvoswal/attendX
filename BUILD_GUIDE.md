@@ -35,13 +35,13 @@ RULE #10: Never modify firebase.js, api.js, dependencies.py without explicit ins
 > **Update this section at the end of every session.**
 
 ```
-Last updated: 2026-04-14
+Last updated: 2026-04-18
 Last session by: Antigravity
-Active phase: Phase 4
-Active task: P4-01 — GET /api/qr/{id}/data
+Active phase: Phase 5
+Active task: P5-01 — attendanceCalc.js
 
-Completed tasks: 33 / 65
-Overall progress: 50%
+Completed tasks: 41 / 65
+Overall progress: 63%
 ```
 
 ---
@@ -88,14 +88,14 @@ Update status after each task completes. Statuses: `✅ Done` | `⏳ In Progress
 | P3-10 | ManualEntryPanel.jsx + groupBy.js | ✅ Done | Implemented as ManualAttendanceView with accordions |
 | P3-11 | StudentRow.jsx + AttendanceValueButtons.jsx | ✅ Done | Embedded in the new interfaces |
 | P3-12 | NewStudentModal.jsx | ✅ Done | Implemented and integrated |
-| P4-01 | GET /api/qr/{id}/data | ❌ | |
-| P4-02 | POST /api/qr/parse-excel | ❌ | |
-| P4-03 | excelParser.js (SheetJS) | ❌ | |
-| P4-04 | QRGeneratorPage.jsx + QRCard + QRGrid | ❌ | |
-| P4-05 | ExcelUpload.jsx + ColumnMapper.jsx | ❌ | |
-| P4-06 | LogoUpload.jsx + opacity slider | ❌ | |
-| P4-07 | useQRGenerator.js (qr-code-styling) | ❌ | |
-| P4-08 | Individual + bulk ZIP download | ❌ | |
+| P4-01 | GET /api/qr/{id}/data | ✅ Done | Included in backend |
+| P4-02 | POST /api/qr/parse-excel | ✅ Done | Included in backend alongside frontend SheetJS parser |
+| P4-03 | excelParser.js (SheetJS) | ✅ Done | `src/utils/excelParser.js` |
+| P4-04 | QRGeneratorPage.jsx + QRCard + QRGrid | ✅ Done | Complete |
+| P4-05 | ExcelUpload.jsx + ColumnMapper.jsx | ✅ Done | Built into generator page |
+| P4-06 | LogoUpload.jsx + opacity slider | ✅ Done | Completed |
+| P4-07 | useQRGenerator.js (qr-code-styling) | ✅ Done | Included canvas appending hook |
+| P4-08 | Individual + bulk ZIP download | ✅ Done | Handled via JSZip and FileReader |
 | P5-01 | attendanceCalc.js | ❌ | |
 | P5-02 | GET /api/attendance/{id}/summary + analytics | ❌ | |
 | P5-03 | Analytics.jsx + all chart components | ❌ | |
@@ -130,13 +130,13 @@ Update status after each task completes. Statuses: `✅ Done` | `⏳ In Progress
 | `src/services/sheetsService.js` | ❌ | All /api/sheets/* calls |
 | `src/services/attendanceService.js` | ✅ Done | All /api/attendance/* calls |
 | `src/services/adminService.js` | ❌ | All /api/admin/* calls |
-| `src/services/qrService.js` | ❌ | /api/qr/* + client-side QR gen wrapper |
+| `src/services/qrService.js` | ✅ Done | /api/qr/* + client-side QR gen wrapper |
 | `src/store/authStore.js` | ❌ | Zustand: user, role, org_id, status |
 | `src/store/sheetStore.js` | ❌ | Zustand: sheets, activeSheet, students |
 | `src/store/sessionStore.js` | ✅ Done | Zustand: scannedIds, sessionDate, markedValues |
 | `src/utils/qrParser.js` | ✅ Done | JSON parse + validate (PRD §6.2). DO NOT MODIFY without instruction. |
 | `src/utils/colorCode.js` | ❌ | % → Tailwind color class |
-| `src/utils/excelParser.js` | ❌ | SheetJS .xlsx/.csv parser |
+| `src/utils/excelParser.js` | ✅ Done | SheetJS .xlsx/.csv parser |
 | `src/utils/dateUtils.js` | ❌ | ISO date helpers + column detection |
 | `src/utils/groupBy.js` | ✅ Done | Group students by column + detect groupable cols |
 | `src/utils/attendanceCalc.js` | ❌ | Calculate % per student |
@@ -146,7 +146,7 @@ Update status after each task completes. Statuses: `✅ Done` | `⏳ In Progress
 | `src/hooks/useStudents.js` | ❌ | Fetch + filter + group students |
 | `src/hooks/useAttendance.js` | ✅ Done | Session state, mark, validate |
 | `src/hooks/useQRScanner.js` | ✅ Done | qr-scanner lifecycle |
-| `src/hooks/useQRGenerator.js` | ❌ | qr-code-styling + logo compositing |
+| `src/hooks/useQRGenerator.js` | ✅ Done | qr-code-styling + logo compositing |
 | `src/hooks/useAnimation.js` | ❌ | GSAP page entrance helpers |
 | `src/hooks/useBreakpoint.js` | ❌ | Returns current breakpoint |
 | `src/components/layout/PageShell.jsx` | ❌ | Root layout wrapper |
@@ -204,7 +204,7 @@ Update status after each task completes. Statuses: `✅ Done` | `⏳ In Progress
 | `src/pages/TakeAttendance.jsx` | ✅ Done | Attendance session page |
 | `src/pages/SheetSettings.jsx` | ❌ | Sheet config page |
 | `src/pages/Analytics.jsx` | ❌ | Analytics charts page |
-| `src/pages/QRGeneratorPage.jsx` | ❌ | QR generation page |
+| `src/pages/QRGeneratorPage.jsx` | ✅ Done | QR generation page |
 | `src/pages/admin/AdminDashboard.jsx` | ❌ | Admin overview (platform stats + recent activity) |
 | `src/pages/admin/OrgList.jsx` | ❌ | All orgs managed by this admin |
 | `src/pages/admin/OrgDetail.jsx` | ❌ | Single org view (users, sheets, stats) |
@@ -227,7 +227,7 @@ Update status after each task completes. Statuses: `✅ Done` | `⏳ In Progress
 | `app/routers/sheets.py` | ❌ | /api/sheets/* |
 | `app/routers/attendance.py` | ✅ Done | /api/attendance/* |
 | `app/routers/admin.py` | ✅ Done | /api/admin/* |
-| `app/routers/qr.py` | ❌ | /api/qr/* |
+| `app/routers/qr.py` | ✅ Done | /api/qr/* |
 | `app/services/firebase_service.py` | ✅ Done | Firestore CRUD |
 | `app/services/sheets_service.py` | ✅ Done | gspread operations |
 | `app/services/email_service.py` | ❌ | SMTP email |

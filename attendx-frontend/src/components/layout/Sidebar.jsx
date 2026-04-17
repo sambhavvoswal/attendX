@@ -46,7 +46,7 @@ export function Sidebar() {
         <div className="flex flex-col gap-2">
           <Item to="/dashboard" label="Dashboard" />
           <Item to="/dashboard" label="Analytics" />
-          <Item to="/dashboard" label="QR Generator" />
+          <Item to="/qr-generator" label="QR Generator" />
         </div>
       </div>
 

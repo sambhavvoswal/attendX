@@ -11,6 +11,7 @@ import { SheetSetup } from './pages/SheetSetup.jsx';
 import { StudentList } from './pages/StudentList.jsx';
 import { SheetSettings } from './pages/SheetSettings.jsx';
 import TakeAttendance from './pages/TakeAttendance.jsx';
+import QRGeneratorPage from './pages/QRGeneratorPage.jsx';
 
 export default function App() {
   return (
@@ -65,6 +66,17 @@ export default function App() {
           <ProtectedRoute>
             <PageShell>
               <SheetSettings />
+            </PageShell>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/qr-generator"
+        element={
+          <ProtectedRoute>
+            <PageShell>
+              <QRGeneratorPage />
             </PageShell>
           </ProtectedRoute>
         }

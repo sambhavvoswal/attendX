@@ -8,6 +8,7 @@ from app.routers.auth import router as auth_router
 from app.routers.admin import router as admin_router
 from app.routers.sheets import router as sheets_router
 from app.routers.attendance import router as attendance_router
+from app.routers.qr import router as qr_router
 
 app = FastAPI(title="AttendX API", version="0.1.0")
 
@@ -42,5 +43,6 @@ app.include_router(auth_router)
 app.include_router(admin_router)
 app.include_router(sheets_router)
 app.include_router(attendance_router, prefix="/api/attendance", tags=["attendance"])
+app.include_router(qr_router)
 
 #comment so that CI(actions) could be tested
