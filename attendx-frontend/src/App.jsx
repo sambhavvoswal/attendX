@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { useAuth } from './hooks/useAuth';
 import { PageShell } from './components/layout/PageShell.jsx';
 import { ProtectedRoute } from './components/layout/ProtectedRoute.jsx';
 import { Landing } from './pages/Landing.jsx';
@@ -21,6 +22,7 @@ import { OrgList } from './pages/admin/OrgList.jsx';
 import { PendingUsers } from './pages/admin/PendingUsers.jsx';
 
 export default function App() {
+  useAuth();
   return (
     <Routes>
       <Route path="/" element={<Landing />} />

@@ -48,7 +48,7 @@ async def approve_user(uid: str, current_user: dict = Depends(require_admin)):
         raise HTTPException(status_code=403, detail="Cannot approve user for a different organization")
 
     updated = update_user_status(uid, "active")
-    if updated:
+    if updated and updated.get("email"):
         org_name = updated.get("org_name", "your organization")
         send_approval_email(updated.get("email"), org_name, updated.get("role", "user"))
         
@@ -65,7 +65,7 @@ async def reject_user(uid: str, current_user: dict = Depends(require_admin)):
         raise HTTPException(status_code=403, detail="Cannot reject user for a different organization")
 
     updated = update_user_status(uid, "rejected")
-    if updated:
+    if updated and user.get("email"):
         org_name = user.get("org_name", "your organization")
         send_rejection_email(user.get("email"), org_name)
         

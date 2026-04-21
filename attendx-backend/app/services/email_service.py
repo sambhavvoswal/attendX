@@ -1,6 +1,7 @@
 import resend
 from app.config import settings
 from typing import Optional
+import html
 
 def _ensure_resend_init():
     if settings.RESEND_API_KEY:
@@ -14,12 +15,15 @@ def send_approval_email(to_email: str, org_name: str, role: str) -> Optional[dic
         
     _ensure_resend_init()
     
+    safe_org = html.escape(org_name)
+    safe_role = html.escape(role)
+    
     html_content = f"""
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
         <h2 style="color: #2563eb;">AttendX Access Approved!</h2>
         <p>Hello,</p>
-        <p>Your request to join <strong>{org_name}</strong> has been officially approved by the administrator.</p>
-        <p>You have been assigned the role of <strong>{role}</strong>.</p>
+        <p>Your request to join <strong>{safe_org}</strong> has been officially approved by the administrator.</p>
+        <p>You have been assigned the role of <strong>{safe_role}</strong>.</p>
         <p>You can now log into your AttendX dashboard to manage your attendance sheets.</p>
         <br />
         <p><a href="{settings.FRONTEND_URL}/login" style="background-color: #2563eb; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 6px;">Login to AttendX</a></p>
@@ -47,11 +51,13 @@ def send_rejection_email(to_email: str, org_name: str) -> Optional[dict]:
         
     _ensure_resend_init()
     
+    safe_org = html.escape(org_name)
+    
     html_content = f"""
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
         <h2 style="color: #ef4444;">AttendX Access Denied</h2>
         <p>Hello,</p>
-        <p>Your request to join <strong>{org_name}</strong> was declined by the administrator.</p>
+        <p>Your request to join <strong>{safe_org}</strong> was declined by the administrator.</p>
         <p>If you believe this was a mistake, please contact your organization administrator directly, or try signing up again using the correct Organization ID.</p>
     </div>
     """

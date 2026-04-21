@@ -188,15 +188,27 @@ def create_sheet(sheet_data: dict) -> dict:
 
     return doc_data
 
-def get_user_sheets(uid: str) -> list[dict]:
+def get_user_sheets(uid: str, org_id: Optional[str] = None) -> list[dict]:
     db = get_firestore_client()
-    docs = db.collection("sheets").where("owner_uid", "==", uid).order_by("last_accessed", direction=firestore.Query.DESCENDING).stream()
-    return [doc.to_dict() for doc in docs]
+    if org_id:
+        docs = db.collection("sheets").where("org_id", "==", org_id).stream()
+        results = [doc.to_dict() for doc in docs]
+        results.sort(key=lambda x: x.get("last_accessed", 0), reverse=True)
+        return results
+    else:
+        docs = db.collection("sheets").where("owner_uid", "==", uid).order_by("last_accessed", direction=firestore.Query.DESCENDING).stream()
+        return [doc.to_dict() for doc in docs]
 
-def get_recent_sheets(uid: str, limit: int = 5) -> list[dict]:
+def get_recent_sheets(uid: str, org_id: Optional[str] = None, limit: int = 5) -> list[dict]:
     db = get_firestore_client()
-    docs = db.collection("sheets").where("owner_uid", "==", uid).order_by("last_accessed", direction=firestore.Query.DESCENDING).limit(limit).stream()
-    return [doc.to_dict() for doc in docs]
+    if org_id:
+        docs = db.collection("sheets").where("org_id", "==", org_id).stream()
+        results = [doc.to_dict() for doc in docs]
+        results.sort(key=lambda x: x.get("last_accessed", 0), reverse=True)
+        return results[:limit]
+    else:
+        docs = db.collection("sheets").where("owner_uid", "==", uid).order_by("last_accessed", direction=firestore.Query.DESCENDING).limit(limit).stream()
+        return [doc.to_dict() for doc in docs]
 
 def get_sheet(sheet_id: str) -> Optional[dict]:
     db = get_firestore_client()

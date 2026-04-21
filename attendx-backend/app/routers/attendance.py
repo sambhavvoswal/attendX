@@ -6,21 +6,26 @@ from app.schemas.attendance import (
     SessionStartRequest,
     SessionEndRequest
 )
-from app.dependencies import get_current_user
+from app.dependencies import require_active_user
 from app.services import firebase_service
 from app.services.sheets_service import SheetsService
+from app.utils.sheet_helpers import check_sheet_access
 
 router = APIRouter()
 sheets_service = SheetsService()
 
 @router.post("/session/start")
-def start_session(req: SessionStartRequest, user: dict = Depends(get_current_user)):
+def start_session(req: SessionStartRequest, user: dict = Depends(require_active_user)):
     try:
         print(f"[session/start] sheet_id={req.sheet_id}, date={req.date}, user={user['uid']}")
         
         sheet = firebase_service.get_sheet(req.sheet_id)
         if not sheet:
             raise HTTPException(status_code=404, detail="Sheet not found")
+            
+        if not check_sheet_access(sheet, user):
+            raise HTTPException(status_code=403, detail="Not authorized to access this sheet")
+            
         print(f"[session/start] Sheet found: {sheet.get('display_name')}")
 
         # Check if a session already exists for this sheet and date
@@ -57,7 +62,7 @@ def start_session(req: SessionStartRequest, user: dict = Depends(get_current_use
         raise HTTPException(status_code=500, detail=f"Internal error: {type(e).__name__}: {str(e)}")
 
 @router.post("/session/end")
-def end_session(req: SessionEndRequest, user: dict = Depends(get_current_user)):
+def end_session(req: SessionEndRequest, user: dict = Depends(require_active_user)):
     # 1. Fetch current session
     session = firebase_service.get_session(req.session_id)
     if not session:
@@ -66,6 +71,9 @@ def end_session(req: SessionEndRequest, user: dict = Depends(get_current_user)):
     sheet = firebase_service.get_sheet(req.sheet_id)
     if not sheet:
         raise HTTPException(status_code=404, detail="Sheet not found")
+        
+    if not check_sheet_access(sheet, user):
+        raise HTTPException(status_code=403, detail="Not authorized to access this sheet")
 
     # 2. Build the final marked_values map
     final_marks = req.marked_values.copy()
@@ -106,10 +114,13 @@ def end_session(req: SessionEndRequest, user: dict = Depends(get_current_user)):
     return {"status": "success", "session_id": req.session_id, "marked_count": len(final_marks)}
 
 @router.get("/{sheet_id}/analytics")
-def get_analytics(sheet_id: str, columns: Optional[str] = Query(None), user: dict = Depends(get_current_user)):
+def get_analytics(sheet_id: str, columns: Optional[str] = Query(None), user: dict = Depends(require_active_user)):
     sheet = firebase_service.get_sheet(sheet_id)
     if not sheet:
         raise HTTPException(status_code=404, detail="Sheet not found")
+        
+    if not check_sheet_access(sheet, user):
+        raise HTTPException(status_code=403, detail="Not authorized to access this sheet")
         
     client = sheets_service.build_client()
     try:

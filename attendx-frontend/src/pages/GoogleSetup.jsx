@@ -2,10 +2,12 @@ import { useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import { useAuthStore } from '../store/authStore';
 import { auth } from '../services/firebase';
 
 export function GoogleSetup() {
   const navigate = useNavigate();
+  const setProfile = useAuthStore((s) => s.setProfile);
   const defaultName = useMemo(() => auth.currentUser?.displayName || '', []);
   const [name, setName] = useState(defaultName);
   const [action, setAction] = useState('join'); // 'join' or 'create'
@@ -34,6 +36,11 @@ export function GoogleSetup() {
         org_name: action === 'create' ? orgName.trim() : "",
         org_id: action === 'join' ? orgId.trim() : "",
       });
+
+      // Fetch fresh profile now that DB entry exists
+      const res = await api.get('/api/auth/me');
+      setProfile(res.data);
+
       toast.success('Onboarding complete! Your account is pending admin approval.');
       navigate('/dashboard');
     } catch (err) {

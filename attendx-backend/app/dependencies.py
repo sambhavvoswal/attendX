@@ -22,14 +22,17 @@ def get_current_user(authorization: str = Header(...)):
 
     return {**user_doc, "uid": decoded["uid"]}
 
+async def require_active_user(current_user: dict = Depends(get_current_user)):
+    if current_user.get("status") != "active":
+        raise HTTPException(403, detail={"code": "inactive", "msg": "Account requires approval"})
+    return current_user
 
-async def require_admin(current_user: dict = Depends(get_current_user)):
+async def require_admin(current_user: dict = Depends(require_active_user)):
     if current_user.get("role") not in ("org_admin", "super_admin"):
         raise HTTPException(403, "Admin access required")
     return current_user
 
-
-async def require_superadmin(current_user: dict = Depends(get_current_user)):
+async def require_superadmin(current_user: dict = Depends(require_active_user)):
     if current_user.get("role") != "super_admin":
         raise HTTPException(403, "Superadmin access required")
     return current_user

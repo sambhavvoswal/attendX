@@ -1,12 +1,10 @@
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
 import { useAuthStore } from '../../store/authStore';
 
 export function ProtectedRoute({
   children,
   allowedRoles = ['user', 'org_admin', 'super_admin'],
 }) {
-  useAuth();
   const { user, role, status, isLoading, loadingMessage } = useAuthStore((s) => ({
     user: s.user,
     role: s.role,

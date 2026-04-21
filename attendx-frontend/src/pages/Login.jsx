@@ -2,10 +2,12 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import { useAuthStore } from '../store/authStore';
 import { auth, signInWithEmailAndPassword, signInWithGoogle } from '../services/firebase';
 
 export function Login() {
   const navigate = useNavigate();
+  const setProfile = useAuthStore((s) => s.setProfile);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
@@ -15,7 +17,8 @@ export function Login() {
     try {
       await signInWithGoogle();
       try {
-        await api.get('/api/auth/me');
+        const res = await api.get('/api/auth/me');
+        setProfile(res.data);
         navigate('/dashboard');
       } catch (e) {
         if (e?.response?.status === 404) {
@@ -37,7 +40,20 @@ export function Login() {
     setBusy(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate('/dashboard');
+      // Mirror the Google flow by fetching profile before navigating
+      try {
+        const res = await api.get('/api/auth/me');
+        setProfile(res.data);
+        navigate('/dashboard');
+      } catch (e) {
+        if (e?.response?.status === 403 && e?.response?.data?.detail?.code === 'account_disabled') {
+          navigate('/disabled');
+        } else {
+          toast.error('Sign in partially completed, but could not fetch your profile. Refreshing...');
+          // Let the global listener try to recover
+          navigate('/dashboard');
+        }
+      }
     } catch (err) {
       const code = err?.code;
       if (code === 'auth/wrong-password') toast.error('Incorrect password');

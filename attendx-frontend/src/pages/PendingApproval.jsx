@@ -1,16 +1,42 @@
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../services/api';
 import { useAuthStore } from '../store/authStore';
 import { auth } from '../services/firebase';
 
 export function PendingApproval() {
   const navigate = useNavigate();
-  const { user, status } = useAuthStore((s) => ({
+
+
+  const { user, status, setProfile } = useAuthStore((s) => ({
     user: s.user,
     status: s.status,
+    setProfile: s.setProfile,
   }));
 
+  useEffect(() => {
+    if (status !== 'pending_approval') {
+      navigate('/dashboard');
+      return;
+    }
+
+    // Auto-poll the server every 5 seconds to break the SPA state-trap 
+    // if the user is approved while staring at the screen.
+    const interval = setInterval(async () => {
+      try {
+        const res = await api.get('/api/auth/me');
+        if (res.data?.status !== 'pending_approval') {
+          setProfile(res.data);
+        }
+      } catch (e) {
+        console.error("Polling error", e);
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [status, navigate, setProfile]);
+
   if (status !== 'pending_approval') {
-    navigate('/dashboard');
     return null;
   }
 

@@ -2,10 +2,12 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import { useAuthStore } from '../store/authStore';
 import { auth, createUserWithEmailAndPassword } from '../services/firebase';
 
 export function Register() {
   const navigate = useNavigate();
+  const setProfile = useAuthStore((s) => s.setProfile);
   const [name, setName] = useState('');
   const [action, setAction] = useState('join');
   const [orgName, setOrgName] = useState('');
@@ -51,6 +53,11 @@ export function Register() {
         org_id: action === 'join' ? orgId.trim() : "",
         email: email.trim(),
       });
+
+      // Fetch fresh profile now that DB entry exists
+      const res = await api.get('/api/auth/me');
+      setProfile(res.data);
+
       toast.success('Registration successful. Your account is pending administrator approval.');
       navigate('/dashboard');
     } catch (err) {
