@@ -1,0 +1,22 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // -------------------------------------------------------------------------
+    // ATTENDX SECURITY RULES
+    // -------------------------------------------------------------------------
+    // Because AttendX uses a Python FastAPI backend with the Firebase Admin SDK,
+    // all database interactions are performed server-side with full privileges.
+    // 
+    // The frontend React application only interacts with Firebase Auth for 
+    // token generation, and NEVER queries Firestore directly.
+    // 
+    // Therefore, the safest and most robust security posture is to completely
+    // deny all direct client-side database access.
+    // -------------------------------------------------------------------------
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
+import api from './services/api';
 import { PageShell } from './components/layout/PageShell.jsx';
 import { ProtectedRoute } from './components/layout/ProtectedRoute.jsx';
 import { Landing } from './pages/Landing.jsx';
@@ -24,6 +26,12 @@ import { ActiveUsers } from './pages/admin/ActiveUsers.jsx';
 
 export default function App() {
   useAuth();
+
+  // Warm up the backend if hosted on cold-start environments
+  useEffect(() => {
+    api.get('/ping').catch(() => {});
+  }, []);
+
   return (
     <Routes>
       <Route path="/" element={<Landing />} />

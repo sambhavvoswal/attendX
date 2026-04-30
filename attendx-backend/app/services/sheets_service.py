@@ -3,6 +3,13 @@ from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from app.config import settings
 from app.utils.sheet_helpers import is_date_column
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception
+
+def is_retriable_gspread_error(exception):
+    if isinstance(exception, gspread.exceptions.APIError):
+        err_str = str(exception)
+        return "429" in err_str or "500" in err_str or "503" in err_str
+    return False
 
 SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -37,6 +44,7 @@ class SheetsService:
                 cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
             return gspread.service_account_from_dict(cred_dict)
 
+    @retry(retry=retry_if_exception(is_retriable_gspread_error), stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=2, max=10))
     def verify_write_access(self, sheet_id: str, client: gspread.Client) -> bool:
         """Returns True if sheet has Editor access. Raises on network errors."""
         try:
@@ -49,6 +57,7 @@ class SheetsService:
                 return False
             raise  # other errors propagate up
 
+    @retry(retry=retry_if_exception(is_retriable_gspread_error), stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=2, max=10))
     def get_students(self, sheet_id: str, client: gspread.Client, include_dates: bool = False) -> list[dict]:
         """Returns all rows. If include_dates is False, strips attendance columns."""
         ws = client.open_by_key(sheet_id).sheet1
@@ -61,6 +70,7 @@ class SheetsService:
         non_att_headers = [h for h in headers if not is_date_column(h)]
         return [{k: row.get(k, '') for k in non_att_headers} for row in all_records]
 
+    @retry(retry=retry_if_exception(is_retriable_gspread_error), stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=2, max=10))
     def get_columns(self, sheet_id: str, client: gspread.Client) -> dict:
         ws = client.open_by_key(sheet_id).sheet1
         headers = ws.row_values(1)
@@ -70,6 +80,7 @@ class SheetsService:
             "attendance_dates": [h for h in headers if is_date_column(h)]
         }
 
+    @retry(retry=retry_if_exception(is_retriable_gspread_error), stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=2, max=10))
     def mark_attendance(self, sheet_id: str, client: gspread.Client, pk_col: str, pk_value: str, date_col: str, att_value: str) -> int:
         ws = client.open_by_key(sheet_id).sheet1
         headers = ws.row_values(1)
@@ -97,6 +108,7 @@ class SheetsService:
         ws.update_cell(row_idx, date_col_idx, att_value)
         return row_idx
 
+    @retry(retry=retry_if_exception(is_retriable_gspread_error), stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=2, max=10))
     def batch_mark_attendance(self, sheet_id: str, client: gspread.Client, pk_col: str, marked_values: dict, date_col: str):
         if not marked_values:
             return

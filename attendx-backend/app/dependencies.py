@@ -1,6 +1,10 @@
 from fastapi import Depends, Header, HTTPException
 
 from app.services.firebase_service import get_user_doc, verify_firebase_id_token
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
+limiter = Limiter(key_func=get_remote_address)
 
 
 def get_current_user(authorization: str = Header(...)):

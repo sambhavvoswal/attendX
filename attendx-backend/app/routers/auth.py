@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
 
-from app.dependencies import get_current_user
+from app.dependencies import get_current_user, limiter
 from app.services.firebase_service import (
     create_org_doc,
     create_user_doc,
@@ -30,7 +30,8 @@ class GoogleSetupBody(BaseModel):
 
 
 @router.post("/register")
-def register(body: RegisterBody, authorization: str = Header(default="")):
+@limiter.limit("10/minute")
+def register(request: Request, body: RegisterBody, authorization: str = Header(default="")):
     """
     Called AFTER Firebase creates the account.
     Even though this is not "protected" by having an existing user doc,
@@ -83,7 +84,8 @@ def register(body: RegisterBody, authorization: str = Header(default="")):
 
 
 @router.post("/google-setup")
-def google_setup(body: GoogleSetupBody, authorization: str = Header(default="")):
+@limiter.limit("10/minute")
+def google_setup(request: Request, body: GoogleSetupBody, authorization: str = Header(default="")):
     if not authorization.startswith("Bearer "):
         raise HTTPException(401, "Missing or malformed Authorization header")
 

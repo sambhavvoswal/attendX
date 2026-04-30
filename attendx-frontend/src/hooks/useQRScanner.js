@@ -1,11 +1,12 @@
 import QrScanner from 'qr-scanner';
-import { useRef, useEffect, useCallback } from 'react';
+import { useRef, useEffect, useCallback, useState } from 'react';
 import { SCAN_DEBOUNCE_MS } from '../constants';
 
 export function useQRScanner({ videoRef, onScan, active = true }) {
   const scannerRef = useRef(null);
   const lastScannedRef = useRef({});  // { [raw_string]: timestamp }
   const onScanRef = useRef(onScan);
+  const [error, setError] = useState(null);
 
   // Keep ref updated to latest closure to avoid dependency changes
   useEffect(() => {
@@ -42,7 +43,10 @@ export function useQRScanner({ videoRef, onScan, active = true }) {
     scannerRef.current = scanner;
 
     if (active) {
-      scanner.start().catch((e) => console.error("Could not starting camera", e));
+      scanner.start().catch((e) => {
+        console.error("Could not starting camera", e);
+        setError(e.message || "Camera access denied or device not found.");
+      });
     }
 
     return () => {
@@ -59,5 +63,5 @@ export function useQRScanner({ videoRef, onScan, active = true }) {
     if (scannerRef.current) scannerRef.current.start();
   }, []);
 
-  return { pause, resume };
+  return { pause, resume, error };
 }

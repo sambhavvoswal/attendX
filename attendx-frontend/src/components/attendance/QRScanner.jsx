@@ -6,7 +6,19 @@ export function QRScanner({ onScan, active = true, children }) {
   const videoRef = useRef(null);
   
   // Custom hook that binds qr-scanner to our video element
-  useQRScanner({ videoRef, onScan, active });
+  const { error } = useQRScanner({ videoRef, onScan, active });
+
+  if (error) {
+    return (
+      <div className="relative flex flex-col items-center justify-center h-full w-full bg-black rounded-2xl border border-border p-6 text-center">
+        <svg className="w-12 h-12 text-red-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+        </svg>
+        <h3 className="text-white font-bold mb-2">Camera Access Denied</h3>
+        <p className="text-sm text-text-secondary max-w-xs mx-auto">Please allow camera permissions in your browser settings and refresh the page to scan QR codes.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="relative h-full w-full overflow-hidden bg-black rounded-2xl border border-border">

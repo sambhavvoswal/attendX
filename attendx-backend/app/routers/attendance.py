@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from typing import Dict, Any, Optional
 import re
 
@@ -6,7 +6,7 @@ from app.schemas.attendance import (
     SessionStartRequest,
     SessionEndRequest
 )
-from app.dependencies import require_active_user
+from app.dependencies import require_active_user, limiter
 from app.services import firebase_service
 from app.services.sheets_service import SheetsService
 from app.utils.sheet_helpers import check_sheet_access
@@ -15,7 +15,8 @@ router = APIRouter()
 sheets_service = SheetsService()
 
 @router.post("/session/start")
-def start_session(req: SessionStartRequest, user: dict = Depends(require_active_user)):
+@limiter.limit("20/minute")
+def start_session(request: Request, req: SessionStartRequest, user: dict = Depends(require_active_user)):
     try:
         print(f"[session/start] sheet_id={req.sheet_id}, date={req.date}, user={user['uid']}")
         
@@ -62,7 +63,8 @@ def start_session(req: SessionStartRequest, user: dict = Depends(require_active_
         raise HTTPException(status_code=500, detail=f"Internal error: {type(e).__name__}: {str(e)}")
 
 @router.post("/session/end")
-def end_session(req: SessionEndRequest, user: dict = Depends(require_active_user)):
+@limiter.limit("5/minute")
+def end_session(request: Request, req: SessionEndRequest, user: dict = Depends(require_active_user)):
     # 1. Fetch current session
     session = firebase_service.get_session(req.session_id)
     if not session:
