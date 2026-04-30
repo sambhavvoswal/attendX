@@ -43,10 +43,10 @@ export function AdminDashboard() {
       <p className="text-sm text-text-secondary mb-8">Access Level: {role === 'super_admin' ? 'Global Super Administrator' : 'Organization Administrator'}</p>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-surface border border-border p-6 rounded-2xl">
+        <Link to="/admin/users" className="bg-surface border border-border p-6 rounded-2xl hover:border-accent/50 transition-colors block cursor-pointer">
           <h3 className="text-sm font-bold text-text-secondary mb-2">Total Users</h3>
           <p className="text-4xl font-bold">{busy ? '-' : stats.users}</p>
-        </div>
+        </Link>
         <Link to="/admin/pending" className="bg-surface border border-border p-6 rounded-2xl hover:border-accent/50 transition-colors block cursor-pointer">
           <h3 className="text-sm font-bold text-text-secondary mb-2">Pending Approvals</h3>
           <p className="text-4xl font-bold text-accent">{busy ? '-' : stats.pending}</p>

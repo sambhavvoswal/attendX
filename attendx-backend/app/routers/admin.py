@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List, Optional
 
-from app.schemas.user import UserResponse, UserMoveOrg
+from app.schemas.user import UserResponse, UserRoleUpdate
 from app.schemas.org import OrgCreate, OrgUpdate, OrgResponse
 from app.dependencies import require_admin, require_superadmin
 from app.services.firebase_service import (
-    get_users, get_user_doc, update_user_status, update_user_org,
+    get_users, get_user_doc, update_user_status, update_user_role_and_org,
     get_orgs, get_org, update_org, delete_org, create_org_doc, now_ts
 )
 from app.services.email_service import send_approval_email, send_rejection_email
@@ -24,17 +24,31 @@ async def list_users(org_id: Optional[str] = None, status: Optional[str] = None,
     return users
 
 @router.put("/users/{uid}/disable")
-async def disable_user(uid: str, current_user: dict = Depends(require_superadmin)):
-    user = update_user_status(uid, "disabled", disabled_by=current_user["uid"])
+async def disable_user(uid: str, current_user: dict = Depends(require_admin)):
+    user = get_user_doc(uid)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+        
+    if current_user["role"] == "org_admin" and current_user["org_id"] != user.get("org_id"):
+        raise HTTPException(status_code=403, detail="Cannot disable user for a different organization")
+        
+    # Prevent disabling super admins or oneself
+    if user.get("role") == "super_admin" or uid == current_user["uid"]:
+        raise HTTPException(status_code=403, detail="Cannot disable this administrative account")
+
+    updated = update_user_status(uid, "disabled", disabled_by=current_user["uid"])
     return {"uid": uid, "status": "disabled"}
 
 @router.put("/users/{uid}/enable")
-async def enable_user(uid: str, current_user: dict = Depends(require_superadmin)):
-    user = update_user_status(uid, "active")
+async def enable_user(uid: str, current_user: dict = Depends(require_admin)):
+    user = get_user_doc(uid)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+        
+    if current_user["role"] == "org_admin" and current_user["org_id"] != user.get("org_id"):
+        raise HTTPException(status_code=403, detail="Cannot enable user for a different organization")
+
+    updated = update_user_status(uid, "active")
     return {"uid": uid, "status": "active"}
 
 @router.put("/users/{uid}/approve")
@@ -71,9 +85,13 @@ async def reject_user(uid: str, current_user: dict = Depends(require_admin)):
         
     return {"uid": uid, "status": "rejected"}
 
-@router.put("/users/{uid}/move-org")
-async def move_user_org(uid: str, payload: UserMoveOrg, current_user: dict = Depends(require_admin)):
-    user = update_user_org(uid, payload.org_id)
+@router.put("/users/{uid}/update-role")
+async def update_user_role(uid: str, payload: UserRoleUpdate, current_user: dict = Depends(require_superadmin)):
+    target_org = get_org(payload.org_id)
+    if not target_org:
+        raise HTTPException(status_code=404, detail="Target organization not found")
+        
+    user = update_user_role_and_org(uid, payload.role, payload.org_id, target_org["name"])
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user

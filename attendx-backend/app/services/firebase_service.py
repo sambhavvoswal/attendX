@@ -135,14 +135,15 @@ def delete_user(uid: str) -> bool:
     ref.delete()
     return True
 
-def update_user_org(uid: str, org_id: str) -> Optional[dict]:
+def update_user_role_and_org(uid: str, role: str, org_id: str, org_name: str) -> Optional[dict]:
     db = get_firestore_client()
     ref = db.collection("users").document(uid)
     snap = ref.get()
     if not snap.exists:
         return None
-    ref.update({"org_id": org_id})
-    return {**snap.to_dict(), "org_id": org_id}
+    updates = {"role": role, "org_id": org_id, "org_name": org_name}
+    ref.update(updates)
+    return {**snap.to_dict(), **updates}
 
 def get_orgs() -> list[dict]:
     db = get_firestore_client()

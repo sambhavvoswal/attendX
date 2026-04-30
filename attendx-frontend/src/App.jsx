@@ -20,6 +20,7 @@ import QRGeneratorPage from './pages/QRGeneratorPage.jsx';
 import { AdminDashboard } from './pages/admin/AdminDashboard.jsx';
 import { OrgList } from './pages/admin/OrgList.jsx';
 import { PendingUsers } from './pages/admin/PendingUsers.jsx';
+import { ActiveUsers } from './pages/admin/ActiveUsers.jsx';
 
 export default function App() {
   useAuth();
@@ -120,6 +121,16 @@ export default function App() {
           <ProtectedRoute allowedRoles={['super_admin']}>
             <PageShell>
               <OrgList />
+            </PageShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/users"
+        element={
+          <ProtectedRoute allowedRoles={['org_admin', 'super_admin']}>
+            <PageShell>
+              <ActiveUsers />
             </PageShell>
           </ProtectedRoute>
         }

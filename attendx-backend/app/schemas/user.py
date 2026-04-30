@@ -18,3 +18,7 @@ class UserResponse(BaseModel):
 
 class UserMoveOrg(BaseModel):
     org_id: str
+
+class UserRoleUpdate(BaseModel):
+    role: str
+    org_id: str

@@ -20,6 +20,21 @@ export const adminService = {
     return res.data;
   },
 
+  disableUser: async (uid) => {
+    const res = await api.put(`/api/admin/users/${uid}/disable`);
+    return res.data;
+  },
+
+  enableUser: async (uid) => {
+    const res = await api.put(`/api/admin/users/${uid}/enable`);
+    return res.data;
+  },
+
+  updateUserRole: async (uid, role, orgId) => {
+    const res = await api.put(`/api/admin/users/${uid}/update-role`, { role, org_id: orgId });
+    return res.data;
+  },
+
   getOrgs: async () => {
     const res = await api.get('/api/admin/orgs');
     return res.data;
